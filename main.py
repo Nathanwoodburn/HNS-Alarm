@@ -5,10 +5,8 @@ Created on Sun Jun  5 12:25:26 2022
 @author: Nathan Woodburn
 """
 
-
-
-#Change this KEY
-apikey = '<API-KEY>'
+#change this KEY
+apikey = 'API KEY'
 
 #Network port is 12039 for mainnet and 14039
 networkport = '12039'
@@ -127,7 +125,7 @@ def checkexp():
     global nextexp
     print(nextexp,"will expire in",nextexpblock-block,"blocks")
     print("Current block",block)
-    if block > nextexpblock - expblock:
+    if block > nextexpblock - expblock and not cli:
         global osname
         if (osname == "Windows"):
             # from win10toast import ToastNotifier
