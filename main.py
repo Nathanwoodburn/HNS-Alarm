@@ -17,9 +17,6 @@ checknames = 10
 # Delay to check for expired names using webhook block (in minutes)
 checkexpiration = 1
 
-#HSD Name (default bob.exe) Linux is usually `hsd` note no caps
-hsdname = 'bob.exe'
-
 
 # Blocks before exipation to alert user
 expblock = 2000
@@ -30,7 +27,6 @@ script = "./alert.sh"
 
 # Import needed stuff
 import requests
-import subprocess
 import time
 import os
 import sys
@@ -56,14 +52,9 @@ for arg in sys.argv:
     i+=1
 
 
-def process_exists(process_name):
+def hsd_running():
     '''
     Check whether the process is running
-
-    Parameters
-    ----------
-    process_name : string
-        Process Name to check
 
     Returns
     -------
@@ -71,30 +62,21 @@ def process_exists(process_name):
         Whether process exists
 
     '''
-    # Get the operating system
-    global osname
     
-    #Either check via windows or linux commands
-    if (osname == "Windows"):
-        call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
-        # use buildin check_output right away
-        output = subprocess.check_output(call).decode()
-        # check in last line for process name
-        last_line = output.strip().split('\r\n')[-1]
-        # because Fail message could be translated
-        return last_line.lower().startswith(process_name.lower())
-    if (osname == "Linux"):
-        tmp = os.popen("ps a -Af").read()
-        proccount = tmp.count(process_name)
-        
-        if proccount > 0:
-            return True
-        else:
-            return False
-    return False
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+    result = sock.connect_ex(('127.0.0.1',int(networkport)))
+    sock.close()
+    if result == 0:
+        return True
+    else:
+        return False
+    
+
 
 def getnextexp():
-    if not process_exists(hsdname):
+    if not hsd_running():
         print("HSD not running")
         return
     global nextexp
